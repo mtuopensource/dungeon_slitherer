@@ -38,8 +38,8 @@ class DungeonMap:
         self.min_dun_width = 100
         self.min_dun_height = 100
 
-        self.max_num_rooms = 20
-        self.min_num_rooms = 10
+        self.max_num_rooms = 5
+        self.min_num_rooms = 5
         self.min_dist_from_end = 5
         self.min_connections = 2
         self.max_connections = 4
@@ -48,11 +48,11 @@ class DungeonMap:
         self.max_room_height = 20
         self.min_room_width = 5
         self.min_room_height = 5
-        self.map = [ [ 0 for i in range(0, self.max_dun_width) ] for j in range(0, self.max_dun_height)]
+        self.map = [ [ ' ' for i in range(0, self.max_dun_width) ] for j in range(0, self.max_dun_height)]
         self.roomList = []
 
     def createRooms(self):
-        num_rooms = random.randint(self.min_num_rooms, self.max_num_rooms + 1)
+        num_rooms = random.randint(self.min_num_rooms, self.max_num_rooms)
         for i in range(0, num_rooms):
             x = random.randint(0, self.max_dun_width)
             y = random.randint(0, self.max_dun_height)
@@ -79,9 +79,9 @@ class DungeonMap:
         for row in range(y, rectHeight + y):
             for col in range(x, rectWidth + x):
                 if row == y or row == (rectHeight + y - 1) or col == x or col == (rectWidth + x - 1) or row == self.max_dun_height - 1 or col == self.max_dun_width - 1:
-                    self.__drawPoint(col, row, 2)
+                    self.__drawPoint(col, row, '@')
                 else:
-                    self.__drawPoint(col, row, 1)
+                    self.__drawPoint(col, row, '1')
 
     def __drawPoint(self, x, y, type):
         if (x >= 0 and x < self.max_dun_width) and (y >=0 and y < self.max_dun_height):
@@ -133,13 +133,40 @@ class DungeonMap:
         room_two_y = room_two.getCenterY()
         room_one_x = room_one.getCenterX()
         room_two_x = room_two.getCenterX()
-        path_x = self.__findMin(room_one_x, room_two_x)
-        path_y = self.__findMin(room_one_y, room_two_y)
-        for row in range(path_y, dist_y + path_y):
-            self.__drawPoint(path_x, row, 1)
-        for col in range(path_x, dist_x + path_x):
-            self.__drawPoint(col, path_y, 1)
+        # path_x = self.__findMin(room_one_x, room_two_x)
+        # path_y = self.__findMin(room_one_y, room_two_y)
+        # for row in range(path_y, dist_y + path_y):
+        #     self.__drawPoint(path_x, row, '1')
+        # for col in range(path_x, dist_x + path_x):
+        #     self.__drawPoint(col, path_y, '1')
 
+        if room_one_x < room_two_x and room_one_y < room_two_y:
+            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, True, True)
+        elif room_one_x < room_two_x and room_one_y > room_two_y:
+            self.__createConnHelper(room_one_x, room_two_y, room_two_x, room_one_y, True, True)
+        elif room_one_x > room_two_x and room_one_y < room_two_y:
+            self.__createConnHelper(room_two_x, room_one_y, room_one_x, room_two_y, True, True)
+        elif room_one_x > room_two_x and room_one_y > room_two_y:
+            self.__createConnHelper(room_two_x, room_two_y, room_one_x, room_one_y, True, True)
+        elif room_one_x == room_two_x and room_one_y < room_two_y:
+            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, False, True)
+        elif room_one_x == room_two_x and room_one_y > room_two_y:
+            self.__createConnHelper(room_one_x, room_two_y, room_two_x, room_one_y, False, True)
+        elif room_one_x < room_two_x and room_one_y == room_two_y:
+            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, True, False)
+        elif room_one_x > room_two_x and room_one_y == room_two_y:
+            self.__createConnHelper(room_two_x, room_one_y, room_one_x, room_two_y, True, False)
+        else:
+            return 
+        
+
+    def __createConnHelper(self, x_one, y_one, x_two, y_two, x_enabled, y_enabled):
+        if x_enabled:
+            for col in range(x_one, x_two):
+                self.__drawPoint(col, y_one, '1')
+        if y_enabled:
+            for row in range(y_one, y_two):
+                self.__drawPoint(x_two, row, '1')
 
     def __findMin(self, x, y):
         if (x < y):
@@ -148,8 +175,14 @@ class DungeonMap:
 
     def __randomRoom(self, room):
         temp = 0
-        while room == self.roomList[temp] and self.roomList[temp] in room.getConnections():
-            temp = random.randint(0, len(self.roomList))
+        # while room == self.roomList[temp] and self.roomList[temp] in room.getConnections():
+        #     temp = random.randint(0, len(self.roomList))
+
+        while True:
+            temp = random.randint(0, len(self.roomList) - 1)
+            #print(str(temp) + " " + str(len(self.roomList)))
+            if not (room == self.roomList[temp] and self.roomList[temp] in room.getConnections()):
+                break
         return temp
     
     def getMap(self):
