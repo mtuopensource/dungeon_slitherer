@@ -6,8 +6,8 @@ class Room:
         self.y = y
         self.width = width
         self.height = height
-        self.centerX = x + width / 2
-        self.centerY = y + height / 2
+        self.centerX = x + int(width / 2)
+        self.centerY = y + int(height / 2)
         self.connections = []
     
     def getCenterX(self):
@@ -17,10 +17,10 @@ class Room:
         return self.centerY
 
     def findXDist(self, other):
-        return abs(self.centerX - other.getCenterX)
+        return abs(self.centerX - other.getCenterX())
 
     def findYDist(self, other):
-        return abs(self.centerY - other.getCenterY)
+        return abs(self.centerY - other.getCenterY())
 
     def addConnection(self, other):
         self.connections.append(other)
@@ -38,8 +38,8 @@ class DungeonMap:
         self.min_dun_width = 100
         self.min_dun_height = 100
 
-        self.max_num_rooms = 10
-        self.min_num_rooms = 5
+        self.max_num_rooms = 20
+        self.min_num_rooms = 10
         self.min_dist_from_end = 5
         self.min_connections = 2
         self.max_connections = 4
@@ -61,6 +61,7 @@ class DungeonMap:
             self.roomList.append(Room(x, y, tempWidth, tempHeight))
             self.__drawRect(x, y, tempHeight, tempWidth)
         self.__connectAdjRooms()
+        self.__createConnections()
 
     def __drawRect(self, x, y, rectHeight, rectWidth):
         if x - self.min_dist_from_end < 0:
@@ -113,32 +114,58 @@ class DungeonMap:
                 print(self.map[col][row], end='')
             print()
 
-    # def __createConnections(self):
-    #     for room in self.roomList:
-    #         tmp_connections = random.randint(self.min_connections, self.max_connections + 1)
-    #         while room.getNumConnections() < tmp_connections:
-    #             temp = self.__randomRoom(room)
-    #             room.addConnection(temp)
-    #             temp.addConnection(room)
+    def __createConnections(self):
+        for room in self.roomList:
+            tmp_connections = random.randint(self.min_connections, self.max_connections + 1)
+            while room.getNumConnections() < tmp_connections:
+                temp = self.__randomRoom(room)
+                room.addConnection(self.roomList[temp])
+                self.roomList[temp].addConnection(room)
 
-
+        for room in self.roomList:
+            for conn in room.getConnections():
+                self.__createConnection(room, conn)
     
-    # def __createVConnection(self):
-    #     return
+    def __createConnection(self, room_one, room_two):
+        dist_y = room_one.findYDist(room_two)
+        dist_x = room_one.findXDist(room_two)
+        room_one_y = room_one.getCenterY()
+        room_two_y = room_two.getCenterY()
+        room_one_x = room_one.getCenterX()
+        room_two_x = room_two.getCenterX()
+        path_x = self.__findMin(room_one_x, room_two_x)
+        path_y = self.__findMin(room_one_y, room_two_y)
+        for row in range(path_y, dist_y + path_y):
+            self.__drawPoint(path_x, row, 1)
+        for col in range(path_x, dist_x + path_x):
+            self.__drawPoint(col, path_y, 1)
 
-    # def __createHConnection(self):
-    #     return
 
-    # def __randomRoom(self, room):
-    #     temp = 0
-    #     while room == self.roomList[temp] and self.roomList[temp] in room.getConnections():
-    #         temp = random.randint(0, len(self.roomList))
-    #     return temp
+    def __findMin(self, x, y):
+        if (x < y):
+            return x
+        return y
+
+    def __randomRoom(self, room):
+        temp = 0
+        while room == self.roomList[temp] and self.roomList[temp] in room.getConnections():
+            temp = random.randint(0, len(self.roomList))
+        return temp
+    
+    def getMap(self):
+        return self.map
 
             
 def main():
     dungeon = DungeonMap()
     dungeon.createRooms()
     dungeon.printMap()
+    print()
+    print()
+    for room in dungeon.roomList:
+        print("center x: %d center y: %d" % (room.getCenterX(), room.getCenterY()))
+        for conn in room.getConnections():
+            print("connection: x: %d y: %d" % (conn.getCenterX(), conn.getCenterY()))
+        print()
 
 main()
