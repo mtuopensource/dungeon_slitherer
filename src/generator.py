@@ -1,3 +1,4 @@
+from __future__ import print_function
 import random
 import math
 from config_reader import readConfig
@@ -85,8 +86,10 @@ class DungeonMap:
                 self.__drawPoint(col, row, '1')
 
     def __drawPoint(self, x, y, type):
+        # print(str(x) + " " + str(self.actual_width) + " " + str(len(self.map[0])))
+        # print(str(y) + " " + str(self.actual_height) + " " + str(len(self.map)))
         if (x >= 0 and x < self.actual_width) and (y >=0 and y < self.actual_height):
-            self.map[x][y] = type
+            self.map[y][x] = type
 
     # def __connectAdjRooms(self):
     #     for row in range(0, self.max_dun_height):
@@ -112,7 +115,7 @@ class DungeonMap:
     def printMap(self):
         for row in range(0, self.actual_height):
             for col in range(0, self.actual_width):
-                print(self.map[col][row], end='')
+                print(self.map[row][col], end='')
             print()
 
     def __createConnections(self):
