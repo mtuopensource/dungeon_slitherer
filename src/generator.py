@@ -1,4 +1,6 @@
 import random
+import math
+from config_reader import readConfig
 
 class Room:
     def __init__(self, x, y, width, height):
@@ -33,21 +35,22 @@ class Room:
 class DungeonMap:
     
     def __init__(self):
-        self.max_dun_width = 100
-        self.max_dun_height = 100
-        self.min_dun_width = 100
-        self.min_dun_height = 100
+        config = readConfig("../configs/dungeon_generation.json")
+        self.max_dun_width = config["max_dun_width"]
+        self.max_dun_height = config["max_dun_height"]
+        self.min_dun_width = config["min_dun_width"]
+        self.min_dun_height = config["min_dun_height"]
 
-        self.max_num_rooms = 5
-        self.min_num_rooms = 5
-        self.min_dist_from_end = 5
-        self.min_connections = 2
-        self.max_connections = 4
+        self.max_num_rooms = config["max_num_rooms"]
+        self.min_num_rooms = config["min_num_rooms"]
+        self.min_dist_from_end = config["min_dist_from_end"]
+        self.min_connections = config["min_connections"]
+        self.max_connections = config["max_connections"]
 
-        self.max_room_width = 20
-        self.max_room_height = 20
-        self.min_room_width = 5
-        self.min_room_height = 5
+        self.max_room_width = config["max_room_width"]
+        self.max_room_height = config["max_room_height"]
+        self.min_room_width = config["min_room_width"]
+        self.min_room_height = config["min_room_height"]
         self.map = [ [ ' ' for i in range(0, self.max_dun_width) ] for j in range(0, self.max_dun_height)]
         self.roomList = []
 
@@ -60,7 +63,6 @@ class DungeonMap:
             tempWidth = random.randint(self.min_room_width, self.max_room_width)
             self.roomList.append(Room(x, y, tempWidth, tempHeight))
             self.__drawRect(x, y, tempHeight, tempWidth)
-        self.__connectAdjRooms()
         self.__createConnections()
 
     def __drawRect(self, x, y, rectHeight, rectWidth):
@@ -78,35 +80,32 @@ class DungeonMap:
             y -= temp
         for row in range(y, rectHeight + y):
             for col in range(x, rectWidth + x):
-                if row == y or row == (rectHeight + y - 1) or col == x or col == (rectWidth + x - 1) or row == self.max_dun_height - 1 or col == self.max_dun_width - 1:
-                    self.__drawPoint(col, row, '@')
-                else:
-                    self.__drawPoint(col, row, '1')
+                self.__drawPoint(col, row, '1')
 
     def __drawPoint(self, x, y, type):
         if (x >= 0 and x < self.max_dun_width) and (y >=0 and y < self.max_dun_height):
             self.map[x][y] = type
 
-    def __connectAdjRooms(self):
-        for row in range(0, self.max_dun_height):
-            for col in range(0, self.max_dun_width):
-                if row == 0 or col == 0 or row == self.max_dun_height - 1 or col == self.max_dun_width - 1:
-                    continue
-                if self.map[col - 1][row] == 1 and self.map[col + 1][row] == 1:
-                    self.map[col][row] = 1
-                elif self.map[col][row + 1] == 1 and self.map[col][row - 1] == 1:
-                    self.map[col][row] = 1
+    # def __connectAdjRooms(self):
+    #     for row in range(0, self.max_dun_height):
+    #         for col in range(0, self.max_dun_width):
+    #             if row == 0 or col == 0 or row == self.max_dun_height - 1 or col == self.max_dun_width - 1:
+    #                 continue
+    #             if self.map[col - 1][row] == 1 and self.map[col + 1][row] == 1:
+    #                 self.map[col][row] = 1
+    #             elif self.map[col][row + 1] == 1 and self.map[col][row - 1] == 1:
+    #                 self.map[col][row] = 1
         
-        for row in range(0, self.max_dun_height):
-            for col in range(0, self.max_dun_width):
-                if row <= 1 or col <= 1 or row >= self.max_dun_height - 2 or col >= self.max_dun_width - 2:
-                    continue
-                if self.map[col - 2][row] == 1 and self.map[col + 1][row] == 1:
-                    self.map[col][row] = 1
-                    self.map[col - 1][row] = 1
-                elif self.map[col][row + 2] == 1 and self.map[col][row - 1] == 1:
-                    self.map[col][row] = 1
-                    self.map[col][row + 1] = 1
+    #     for row in range(0, self.max_dun_height):
+    #         for col in range(0, self.max_dun_width):
+    #             if row <= 1 or col <= 1 or row >= self.max_dun_height - 2 or col >= self.max_dun_width - 2:
+    #                 continue
+    #             if self.map[col - 2][row] == 1 and self.map[col + 1][row] == 1:
+    #                 self.map[col][row] = 1
+    #                 self.map[col - 1][row] = 1
+    #             elif self.map[col][row + 2] == 1 and self.map[col][row - 1] == 1:
+    #                 self.map[col][row] = 1
+    #                 self.map[col][row + 1] = 1
     
     def printMap(self):
         for row in range(0, self.max_dun_height):
@@ -124,49 +123,54 @@ class DungeonMap:
 
         for room in self.roomList:
             for conn in room.getConnections():
-                self.__createConnection(room, conn)
+                self.__createPath(room, conn)
     
-    def __createConnection(self, room_one, room_two):
-        dist_y = room_one.findYDist(room_two)
-        dist_x = room_one.findXDist(room_two)
-        room_one_y = room_one.getCenterY()
-        room_two_y = room_two.getCenterY()
-        room_one_x = room_one.getCenterX()
-        room_two_x = room_two.getCenterX()
-        # path_x = self.__findMin(room_one_x, room_two_x)
-        # path_y = self.__findMin(room_one_y, room_two_y)
-        # for row in range(path_y, dist_y + path_y):
-        #     self.__drawPoint(path_x, row, '1')
-        # for col in range(path_x, dist_x + path_x):
-        #     self.__drawPoint(col, path_y, '1')
+    def __createPath(self, room_one, room_two):
+        x_one = room_one.getCenterX()
+        y_one = room_one.getCenterY()
+        x_two = room_two.getCenterX()
+        y_two = room_two.getCenterY()
 
-        if room_one_x < room_two_x and room_one_y < room_two_y:
-            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, True, True)
-        elif room_one_x < room_two_x and room_one_y > room_two_y:
-            self.__createConnHelper(room_one_x, room_two_y, room_two_x, room_one_y, True, True)
-        elif room_one_x > room_two_x and room_one_y < room_two_y:
-            self.__createConnHelper(room_two_x, room_one_y, room_one_x, room_two_y, True, True)
-        elif room_one_x > room_two_x and room_one_y > room_two_y:
-            self.__createConnHelper(room_two_x, room_two_y, room_one_x, room_one_y, True, True)
-        elif room_one_x == room_two_x and room_one_y < room_two_y:
-            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, False, True)
-        elif room_one_x == room_two_x and room_one_y > room_two_y:
-            self.__createConnHelper(room_one_x, room_two_y, room_two_x, room_one_y, False, True)
-        elif room_one_x < room_two_x and room_one_y == room_two_y:
-            self.__createConnHelper(room_one_x, room_one_y, room_two_x, room_two_y, True, False)
-        elif room_one_x > room_two_x and room_one_y == room_two_y:
-            self.__createConnHelper(room_two_x, room_one_y, room_one_x, room_two_y, True, False)
+        strt_x = self.__findMin(x_one, x_two)
+        strt_y = 0
+        dest_x = 0
+        dest_y = 0
+
+        if strt_x == x_one:
+            strt_y = y_one
+            dest_x = x_two
+            dest_y = y_two
         else:
-            return 
-        
+            strt_y = y_two
+            dest_x = x_one
+            dest_y = y_one
 
-    def __createConnHelper(self, x_one, y_one, x_two, y_two, x_enabled, y_enabled):
-        if x_enabled:
-            for col in range(x_one, x_two):
-                self.__drawPoint(col, y_one, '1')
-        if y_enabled:
-            for row in range(y_one, y_two):
-                self.__drawPoint(x_two, row, '1')
+        row = strt_y
+        col = strt_x
+        while True:
+            curr_dist = self.__distance(col, row, dest_x, dest_y)
+            if curr_dist == 0:
+                break
+            if self.__distance(col, row - 1, dest_x, dest_y) < curr_dist:
+                self.__drawPoint(col, row - 1, '1')
+                row -= 1
+                continue
+            elif self.__distance(col, row + 1, dest_x, dest_y) < curr_dist:
+                self.__drawPoint(col, row + 1, '1')
+                row += 1
+                continue
+            elif self.__distance(col - 1, row, dest_x, dest_y) < curr_dist:
+                self.__drawPoint(col - 1, row, '1')
+                col -= 1
+                continue
+            elif self.__distance(col + 1, row, dest_x, dest_y) < curr_dist:
+                self.__drawPoint(col + 1, row, '1')
+                col += 1
+                continue
+            
+
+    def __distance(self, a, b, x, y):
+        return math.sqrt((a - x)**2 + (b - y)**2)
 
     def __findMin(self, x, y):
         if (x < y):
@@ -175,12 +179,8 @@ class DungeonMap:
 
     def __randomRoom(self, room):
         temp = 0
-        # while room == self.roomList[temp] and self.roomList[temp] in room.getConnections():
-        #     temp = random.randint(0, len(self.roomList))
-
         while True:
             temp = random.randint(0, len(self.roomList) - 1)
-            #print(str(temp) + " " + str(len(self.roomList)))
             if not (room == self.roomList[temp] and self.roomList[temp] in room.getConnections()):
                 break
         return temp
@@ -193,12 +193,4 @@ def main():
     dungeon = DungeonMap()
     dungeon.createRooms()
     dungeon.printMap()
-    print()
-    print()
-    for room in dungeon.roomList:
-        print("center x: %d center y: %d" % (room.getCenterX(), room.getCenterY()))
-        for conn in room.getConnections():
-            print("connection: x: %d y: %d" % (conn.getCenterX(), conn.getCenterY()))
-        print()
-
 main()
