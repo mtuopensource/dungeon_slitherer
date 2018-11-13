@@ -53,12 +53,15 @@ class DungeonMap:
         self.min_room_height = config["min_room_height"]
         self.map = [ [ ' ' for i in range(0, self.max_dun_width) ] for j in range(0, self.max_dun_height)]
         self.roomList = []
+        self.actual_height = random.randint(self.min_dun_height, self.max_dun_height + 1)
+        self.actual_width = random.randint(self.min_dun_width, self.max_dun_width + 1)
+
 
     def createRooms(self):
         num_rooms = random.randint(self.min_num_rooms, self.max_num_rooms)
         for i in range(0, num_rooms):
-            x = random.randint(0, self.max_dun_width)
-            y = random.randint(0, self.max_dun_height)
+            x = random.randint(0, self.actual_width)
+            y = random.randint(0, self.actual_height)
             tempHeight = random.randint(self.min_room_height, self.max_room_height)
             tempWidth = random.randint(self.min_room_width, self.max_room_width)
             self.roomList.append(Room(x, y, tempWidth, tempHeight))
@@ -69,21 +72,21 @@ class DungeonMap:
         if x - self.min_dist_from_end < 0:
             temp = abs(x - self.min_dist_from_end)
             x += temp
-        elif x + self.min_dist_from_end >= self.max_dun_width:
-            temp = x + self.min_dist_from_end - self.max_dun_width
+        elif x + self.min_dist_from_end >= self.actual_width:
+            temp = x + self.min_dist_from_end - self.actual_width
             x -= temp
         if y - self.min_dist_from_end < 0:
             temp = abs(y - self.min_dist_from_end)
             y += temp
-        elif y + self.min_dist_from_end >= self.max_dun_height:
-            temp = y + self.min_dist_from_end - self.min_dun_height
+        elif y + self.min_dist_from_end >= self.actual_height:
+            temp = y + self.min_dist_from_end - self.actual_height
             y -= temp
         for row in range(y, rectHeight + y):
             for col in range(x, rectWidth + x):
                 self.__drawPoint(col, row, '1')
 
     def __drawPoint(self, x, y, type):
-        if (x >= 0 and x < self.max_dun_width) and (y >=0 and y < self.max_dun_height):
+        if (x >= 0 and x < self.actual_width) and (y >=0 and y < self.actual_height):
             self.map[x][y] = type
 
     # def __connectAdjRooms(self):
@@ -108,8 +111,8 @@ class DungeonMap:
     #                 self.map[col][row + 1] = 1
     
     def printMap(self):
-        for row in range(0, self.max_dun_height):
-            for col in range(0, self.max_dun_width):
+        for row in range(0, self.actual_height):
+            for col in range(0, self.actual_width):
                 print(self.map[col][row], end='')
             print()
 
