@@ -6,7 +6,11 @@ The following instructions will set you up with a copy of the project on your lo
 For
 
 ### Prerequisites
-Python 3.X: The following are instructions for Ubuntu
+- Python 3.X 
+- pip3
+- pygame
+
+The following are instructions for Ubuntu
 <br/>
 For platform specific instructions, visit the [python website](https://www.python.org/downloads/)
 <br/><br/>
@@ -18,7 +22,6 @@ Verify the Installation (Should return ```Python 3.X.X```)
 ```
 python3 --version
 ```
-
 Install pip3
 ```
 sudo apt install python3-pip
@@ -27,6 +30,11 @@ Verify the Installation (Should return something like```pip 9.0.1 from /usr/lib/
 ```
 pip3 --version
 ```
+Install pygame
+```
+pip3 install pygame
+```
+
 ## License 
 This project is licensed under the [GNU-GPL2 License](LICENSE)
 
