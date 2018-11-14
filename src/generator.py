@@ -53,8 +53,8 @@ class DungeonMap:
         self.min_room_width = config["min_room_width"]
         self.min_room_height = config["min_room_height"]
         self.roomList = []
-        self.actual_height = random.randint(self.min_dun_height, self.max_dun_height + 1)
-        self.actual_width = random.randint(self.min_dun_width, self.max_dun_width + 1)
+        self.actual_height = random.randint(self.min_dun_height, self.max_dun_height)
+        self.actual_width = random.randint(self.min_dun_width, self.max_dun_width)
         self.map = [ [ ' ' for i in range(0, self.actual_width) ] for j in range(0, self.actual_height)]
 
     def createRooms(self):
