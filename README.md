@@ -28,7 +28,7 @@ Verify the Installation (Should return something like```pip 9.0.1 from /usr/lib/
 pip3 --version
 ```
 ## License 
-This project is licensed under the GNU-GPL2 License
+This project is licensed under the [GNU-GPL2 License](LICENSE)
 
 ## Acknowledgements
 - This project was inspired by the Dark-Cells dungeoun crawler game created by Devin Stowe: [mtuopensource/Dark-Cells-Dungeoun-Crawler](https://github.com/mtuopensource/Dark-Cells-Dungeon-Crawler "Dark-Cells")
