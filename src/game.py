@@ -1,3 +1,4 @@
+from models import Player
 import sys, pygame
 from pygame import display
 pygame.init()
@@ -9,13 +10,19 @@ screen = display.set_mode(resolution)
 title = "Dungeon Slitherer"
 black = 0, 0, 0
 
+entities = [Player()]
+
 def update():
 	'''game logic'''
 	handle_events()
+	for entity in entities:
+		entity.update(0)
 
 def render():
 	'''draw entities and flip the buffer'''
 	screen.fill(black)
+	for entity in entities:
+		entity.render(0, screen)
 	display.flip()
 
 def handle_events():

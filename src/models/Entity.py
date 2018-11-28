@@ -13,5 +13,6 @@ class Entity(ABC):
     def update(self, delta):
         pass
 
-    def render(self, delta):
-        pass
+    def render(self, delta, screen):
+        bounds = self.sprite.get_rect()
+        screen.blit(self.sprite, bounds)
