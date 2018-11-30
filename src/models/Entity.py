@@ -4,6 +4,7 @@ from pygame import Surface
 
 class Entity(ABC):
     def __init__(self, path):
+		#Rendering vars
         self.sprite = image.load(path)
         self.pos = 0, 0
         self.rot = 0, 0

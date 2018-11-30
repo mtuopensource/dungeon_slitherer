@@ -1,8 +1,8 @@
 {
-    "max_dun_width": 50,
-    "max_dun_height": 50,
-    "min_dun_width": 100,
-    "min_dun_height": 100,
+    "max_dun_width": 100,
+    "max_dun_height": 100,
+    "min_dun_width": 50,
+	"min_dun_height": 50,
     "max_num_rooms": 15,
     "min_num_rooms": 8,
     "min_dist_from_end": 5,
